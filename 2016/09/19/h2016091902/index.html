@@ -1,0 +1,1066 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Lobster Two:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="NSTimer  CADisplayLink  GCD 定时器," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="UIScrollView 拖动时执行的是 UITrackingRunLoopMode，会导致暂停定时器，等恢复为 NSDefaultRunLoopMode 时才恢复定时器。 所以如果需要定时器在 UIScrollView 拖动时也不影响的话，建议添加到 UITrackingRunLoopMode 或 NSRunLoopCommonModes 中：  NSTimer *timer = [NSTime">
+<meta name="keywords" content="NSTimer  CADisplayLink  GCD 定时器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS定时器的用法NSTimer、CADisplayLink、GCD">
+<meta property="og:url" content="http://yoursite.com/2016/09/19/h2016091902/index.html">
+<meta property="og:site_name" content="victor kun Blog">
+<meta property="og:description" content="UIScrollView 拖动时执行的是 UITrackingRunLoopMode，会导致暂停定时器，等恢复为 NSDefaultRunLoopMode 时才恢复定时器。 所以如果需要定时器在 UIScrollView 拖动时也不影响的话，建议添加到 UITrackingRunLoopMode 或 NSRunLoopCommonModes 中：  NSTimer *timer = [NSTime">
+<meta property="og:image" content="http://yoursite.com/2016/09/19/h2016091902/h201609190201.png">
+<meta property="og:updated_time" content="2017-07-05T06:28:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS定时器的用法NSTimer、CADisplayLink、GCD">
+<meta name="twitter:description" content="UIScrollView 拖动时执行的是 UITrackingRunLoopMode，会导致暂停定时器，等恢复为 NSDefaultRunLoopMode 时才恢复定时器。 所以如果需要定时器在 UIScrollView 拖动时也不影响的话，建议添加到 UITrackingRunLoopMode 或 NSRunLoopCommonModes 中：  NSTimer *timer = [NSTime">
+<meta name="twitter:image" content="http://yoursite.com/2016/09/19/h2016091902/h201609190201.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/19/h2016091902/"/>
+
+  <title> iOS定时器的用法NSTimer、CADisplayLink、GCD | victor kun Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">victor kun Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS定时器的用法NSTimer、CADisplayLink、GCD
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-19T09:44:44+08:00" content="2016-09-19">
+              2016-09-19
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/19/h2016091902/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/19/h2016091902/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/19/h2016091902/" class="leancloud_visitors" data-flag-title="iOS定时器的用法NSTimer、CADisplayLink、GCD">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文总阅读量<i class="fa fa-file-o"></i>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>UIScrollView 拖动时执行的是 UITrackingRunLoopMode，会导致暂停定时器，等恢复为 NSDefaultRunLoopMode 时才恢复定时器。</p>
+<p>所以如果需要定时器在 UIScrollView 拖动时也不影响的话，建议添加到 UITrackingRunLoopMode 或 NSRunLoopCommonModes 中：</p>
+<pre><code> NSTimer *timer = [NSTimer timerWithTimeInterval:5 target:self selector:@selector(timerAction) userInfo:nil repeats:YES];
+[[NSRunLoop mainRunLoop] addTimer:timer forMode: UITrackingRunLoopMode]; ///&lt; 或者 NSRunLoopCommonModes
+</code></pre><h2 id="1-NSTimer"><a href="#1-NSTimer" class="headerlink" title="1. NSTimer"></a>1. NSTimer</h2><pre><code>//创建方式1
+NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(action:) userInfo:nil repeats:NO];
+[timer invalidate];
+//调用创建方法后，target对象的计数器会加1，直到执行完毕，自动减1。如果是循环执行的话，就必须手动关闭，否则可以不执行释放方法。
+
+TimerInterval : 执行之前等待的时间。比如设置成1.0，就代表1秒后执行方法
+
+target : 需要执行方法的对象。
+
+selector : 需要执行的方法
+
+repeats : 是否需要循环
+
+
+//推荐--&gt;创建方式2
+使用上面的创建方式，会自动把timer加入MainRunloop的NSDefaultRunLoopMode中。如果使用以下方式创建定时器，就必须手动加入Runloop:
+NSTimer *timer = [NSTimer timerWithTimeInterval:5 target:self selector:@selector(timerAction) userInfo:nil repeats:YES];
+[[NSRunLoop mainRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+[timer invalidate];
+</code></pre><p>存在延迟：不管是一次性的还是周期性的timer的实际触发事件的时间，都会与所加入的RunLoop和RunLoop Mode有关，如果此RunLoop正在执行一个连续性的运算，timer就会被延时出发。</p>
+<h2 id="2-CADisplayLink"><a href="#2-CADisplayLink" class="headerlink" title="2. CADisplayLink"></a>2. CADisplayLink</h2><pre><code>- (void)startDisplayLink{
+self.displayLink = [CADisplayLink displayLinkWithTarget:self
+                                               selector:@selector(handleDisplayLink:)];
+[self.displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+                       forMode:NSDefaultRunLoopMode];
+}
+
+- (void)handleDisplayLink:(CADisplayLink *)displayLink{
+//do something
+}
+
+- (void)stopDisplayLink{
+[self.displayLink invalidate];
+self.displayLink = nil;
+}
+</code></pre><p>CADisplayLink是一个能让我们以和屏幕刷新率同步的频率将特定的内容画到屏幕上的定时器类。 CADisplayLink以特定模式注册到runloop后， 每当屏幕显示内容刷新结束的时候，runloop就会向 CADisplayLink指定的target发送一次指定的selector消息， CADisplayLink类对应的selector就会被调用一次。所以通常情况下，按照iOS设备屏幕的刷新率60次/秒</p>
+<p>iOS设备的屏幕刷新频率是固定的，CADisplayLink在正常情况下会在每次刷新结束都被调用，精确度相当高。使用场合相对专一，适合做UI的不停重绘，比如自定义动画引擎或者视频播放的渲染。不需要在格外关心屏幕的刷新频率了，本身就是跟屏幕刷新同步的。</p>
+<p>#####延迟</p>
+<pre><code>iOS设备的屏幕刷新频率是固定的，CADisplayLink在正常情况下会在每次刷新结束都被调用，精确度相当高。但如果调用的方法比较耗时，超过了屏幕刷新周期，就会导致跳过若干次回调调用机会。
+
+如果CPU过于繁忙，无法保证屏幕60次/秒的刷新率，就会导致跳过若干次调用回调方法的机会，跳过次数取决CPU的忙碌程度。
+</code></pre><p>#####使用场景</p>
+<p>从原理上可以看出，CADisplayLink适合做界面的不停重绘，比如视频播放的时候需要不停地获取下一帧用于界面渲染。</p>
+<p><br><br>对于iOS设备来说刷新频率就是60HZ，也就是说selector的调用是每秒60次。</p>
+<p>但是CADisplayLink的调用真的足够精确吗？因为我们知道，fps这个东西可不是一成不变的！</p>
+<pre><code>some++;
+if (some==60) {
+    some=0;
+    NSLog(@&quot;一秒 ！！&quot;);
+}
+</code></pre><p> 也就意味着，如果每秒调用60次的话，那么输出应该是每秒一次。<br> <img src="/2016/09/19/h2016091902/h201609190201.png" alt="one" title="one"><br></p>
+<p> 可以看到输出中的时间。一开始是很平稳的45:01，45:02，45:03，然后一下子跳到了45:09,然后又是45:12，45:15，可以看到，并不是确定的每秒输出一次，也就是并不是每秒调用60次selector！</p>
+<p>那么为什么一开始那么平稳，突然就变了呢。我在一个tableView中，每个cell加了很多复杂的UI，所以GPU去渲染时很耗费性能，导致fps并不能以60的平稳状态保持，selector的调用也就相应的变化了。</p>
+<p>结论</p>
+<pre><code>CADisplayLink的调用足够精确吗？
+
+答：CADisplayLink每当屏幕刷新一次就会调用一次selector，非常精确。但是，应为屏幕刷新并不是一成不变的每秒60次，所以每秒调用固定次数的说法并不正确！
+（虽然一个好的应用，fps应该相对平稳）
+</code></pre><h2 id="3-GCD"><a href="#3-GCD" class="headerlink" title="3. GCD"></a>3. GCD</h2><h4 id="1-执行一次"><a href="#1-执行一次" class="headerlink" title="1. 执行一次"></a>1. 执行一次</h4><pre><code>double delayInSeconds = 2.0;    
+ dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);   
+
+ dispatch_after(popTime, dispatch_get_main_queue(), ^(void){ 
+      //执行事件    
+
+});
+</code></pre><h4 id="2-重复执行"><a href="#2-重复执行" class="headerlink" title="2. 重复执行"></a>2. 重复执行</h4><pre><code>NSTimeInterval period = 1.0; //设置时间间隔    
+
+dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);  
+
+dispatch_source_t _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue); &lt;br&gt;   dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), period * NSEC_PER_SEC, 0); //每秒执行    
+
+dispatch_source_set_event_handler(_timer, ^{   
+
+ //在这里执行事件    
+ });
+
+dispatch_resume(_timer);
+</code></pre><p>GCD的定时器和NSTimer是不一样的，NSTimer受RunLoop影响，但是GCD的定时器不受影响，因为RunLoop也是基于GCD的</p>
+<h2 id="计时器（全局）"><a href="#计时器（全局）" class="headerlink" title="计时器（全局）"></a>计时器（全局）</h2><pre><code>@interface ViewController ()
+@property(nonatomic,strong)NSTimer *timer; // timer
+@property(nonatomic,assign)int countDown; // 倒数计时用
+@property(nonatomic,strong)NSDate *beforeDate; // 上次进入后台时间
+
+@end
+
+static int const tick = 60;
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+[super viewDidLoad];
+[self setupNotification];
+[self startCountDown];
+}
+
+-(void)dealloc {
+[[NSNotificationCenter defaultCenter]removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+[[NSNotificationCenter defaultCenter]removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+[self stopTimer];
+}
+
+-(void)setupNotification {
+[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(enterBG) name:UIApplicationDidEnterBackgroundNotification object:nil];
+[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(enterFG) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+/**
+ *  进入后台记录当前时间
+ */
+-(void)enterBG {
+NSLog(@&quot;应用进入后台啦&quot;);
+_beforeDate = [NSDate date];
+}
+
+/**
+ *  返回前台时更新倒计时值
+ */
+-(void)enterFG {
+NSLog(@&quot;应用将要进入到前台&quot;);
+NSDate * now = [NSDate date];
+int interval = (int)ceil([now timeIntervalSinceDate:_beforeDate]);
+int val = _countDown - interval;
+if(val &gt; 1){
+    _countDown -= interval;
+}else{
+    _countDown = 1;
+}
+}
+
+/**
+ *  开始倒计时
+ */
+-(void)startCountDown {
+_countDown = tick; //&lt; 重置计时
+_timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(timerFired:) userInfo:nil repeats:YES]; //&lt; 需要加入手动RunLoop，需要注意的是在NSTimer工作期间self是被强引用的
+[[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes]; //&lt; 使用NSRunLoopCommonModes才能保证RunLoop切换模式时，NSTimer能正常工作。
+}
+
+-(void)timerFired:(NSTimer *)timer {
+if (_countDown == 0) {
+    [self stopTimer];
+    NSLog(@&quot;重新发送&quot;);
+}else{
+    _countDown -=1;
+    NSLog(@&quot;倒计时中：%d&quot;,_countDown);
+}
+}
+
+- (void)stopTimer {
+if (_timer) {
+    [_timer invalidate];
+}
+}
+</code></pre><h2 id="雪花效果"><a href="#雪花效果" class="headerlink" title="雪花效果"></a>雪花效果</h2><pre><code> #import &lt;UIKit/UIKit.h&gt;
+ @interface ViewController : UIViewController
+@property (strong, nonatomic) UIImage *imgSnowflake;
+@end
+
+
+
+#import &quot;ViewController.h&quot;
+
+@interface ViewController ()
+- (void)layoutUI;
+- (void)snow;
+@end
+
+@implementation ViewController
+#define kApplicationFrame [[UIScreen mainScreen] applicationFrame]
+#define kWidthOfSnowflake 30.0
+
+- (void)viewDidLoad {
+[super viewDidLoad];
+
+[self layoutUI];
+}
+
+- (void)didReceiveMemoryWarning {
+[super didReceiveMemoryWarning];
+// Dispose of any resources that can be recreated.
+}
+
+- (void)layoutUI {
+self.view.backgroundColor = [UIColor colorWithRed:0.218 green:0.219 blue:0.196 alpha:1.000];
+_imgSnowflake = [UIImage imageNamed:@&quot;Snowflake&quot;];
+
+//定时器；每隔0.5秒执行一次
+[NSTimer scheduledTimerWithTimeInterval:0.5
+                                 target:self
+                               selector:@selector(snow)
+                               userInfo:nil
+                                repeats:YES];
+}
+
+- (void)snow {
+NSString *strWidthOfScene = [NSString stringWithFormat:@&quot;%f&quot;, kApplicationFrame.size.width-kWidthOfSnowflake]; //bounds 返回整个屏幕大小；applicationFrame 返回去除状态栏后的屏幕大小
+CGFloat startX = arc4random()%[strWidthOfScene integerValue]; //产生随机数0到strWidthOfScene-1
+CGFloat endX = (arc4random()%[strWidthOfScene integerValue]) + 1; //产生随机数1到strWidthOfScene
+
+UIImageView *imgV = [[UIImageView alloc] initWithImage:_imgSnowflake];
+imgV.frame = CGRectMake(startX, -20.0, kWidthOfSnowflake, kWidthOfSnowflake);
+imgV.alpha = 0.8;
+[self.view addSubview:imgV];
+
+[UIView beginAnimations:nil context:NULL];
+[UIView setAnimationDuration:5];
+imgV.frame = CGRectMake(endX,
+                        kApplicationFrame.size.height+20.0-kWidthOfSnowflake,
+                        kWidthOfSnowflake,
+                        kWidthOfSnowflake);
+[UIView commitAnimations];
+}
+
+@end
+</code></pre>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/uploads/weixinpay.jpg" alt="victor WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/uploads/zhifubaopay.jpg" alt="victor Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/NSTimer-CADisplayLink-GCD-定时器/" rel="tag">#NSTimer  CADisplayLink  GCD 定时器</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/19/h2016091901/" rel="next" title="Xcode7升级到Xcode8之后遇到的问题汇总">
+                <i class="fa fa-chevron-left"></i> Xcode7升级到Xcode8之后遇到的问题汇总
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/19/h2016091903/" rel="prev" title="iOS Runtime的原理以及应用">
+                iOS Runtime的原理以及应用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/19/h2016091902/"
+     data-title="iOS定时器的用法NSTimer、CADisplayLink、GCD"
+     data-content=""
+     data-url="http://yoursite.com/2016/09/19/h2016091902/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/19/h2016091902/"
+           data-title="iOS定时器的用法NSTimer、CADisplayLink、GCD" data-url="http://yoursite.com/2016/09/19/h2016091902/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="victor" />
+          <p class="site-author-name" itemprop="name">victor</p>
+          <p class="site-description motion-element" itemprop="description">逆风的方向更适合飞翔，我不怕万人阻挡，只怕自己投降！不管做什么事，我都时刻记住这句话，遇到任何困难，都坚持不放弃！</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/wsl-victor/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/pearapp" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  微博
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/appandroid" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">victor</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">本站访客数<i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span>人次</span>
+  
+
+  
+    <span class="site-pv">本站总访问量<i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"wsl-victor"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("v4nftjucrmaXAwlIFJ85OWfq-gzGzoHsz", "Pn9K1mT5Q26u61iXfhmmsKT1#<app_key>");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

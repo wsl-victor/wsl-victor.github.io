@@ -1,0 +1,1003 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Lobster Two:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文是对iOS 推送进行的一个完整的解析，不管你之前是否对推送有无了解，那么认真的读完这篇文章，你都会非常清楚的了解推送的各种细节 和 原理。 推送服务可以说是所有App的标配，不论哪种类型的App,推送都从很大程度上决定了App 的打开率，使用率，存活率。因此，熟悉并掌握推送的原理与方法，对每一个开发者来说都是必备的技能；特别是对严重依赖App的公司来说至关重要。 从iOS 10 新增的 Use">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 推送全解析">
+<meta property="og:url" content="http://yoursite.com/2016/09/14/h2016091305/index.html">
+<meta property="og:site_name" content="victor kun Blog">
+<meta property="og:description" content="本文是对iOS 推送进行的一个完整的解析，不管你之前是否对推送有无了解，那么认真的读完这篇文章，你都会非常清楚的了解推送的各种细节 和 原理。 推送服务可以说是所有App的标配，不论哪种类型的App,推送都从很大程度上决定了App 的打开率，使用率，存活率。因此，熟悉并掌握推送的原理与方法，对每一个开发者来说都是必备的技能；特别是对严重依赖App的公司来说至关重要。 从iOS 10 新增的 Use">
+<meta property="og:updated_time" content="2017-07-05T06:28:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS 推送全解析">
+<meta name="twitter:description" content="本文是对iOS 推送进行的一个完整的解析，不管你之前是否对推送有无了解，那么认真的读完这篇文章，你都会非常清楚的了解推送的各种细节 和 原理。 推送服务可以说是所有App的标配，不论哪种类型的App,推送都从很大程度上决定了App 的打开率，使用率，存活率。因此，熟悉并掌握推送的原理与方法，对每一个开发者来说都是必备的技能；特别是对严重依赖App的公司来说至关重要。 从iOS 10 新增的 Use">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/14/h2016091305/"/>
+
+  <title> iOS 推送全解析 | victor kun Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">victor kun Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS 推送全解析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-14T10:10:17+08:00" content="2016-09-14">
+              2016-09-14
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/14/h2016091305/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/14/h2016091305/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/14/h2016091305/" class="leancloud_visitors" data-flag-title="iOS 推送全解析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文总阅读量<i class="fa fa-file-o"></i>
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文是对iOS 推送进行的一个完整的解析，不管你之前是否对推送有无了解，那么认真的读完这篇文章，你都会非常清楚的了解推送的各种细节 和 原理。</p>
+<p>推送服务可以说是所有App的标配，不论哪种类型的App,推送都从很大程度上决定了App 的打开率，使用率，存活率。因此，熟悉并掌握推送的原理与方法，对每一个开发者来说都是必备的技能；特别是对严重依赖App的公司来说至关重要。</p>
+<p>从iOS 10 新增的 UserNotifications Framework 可以看出，Apple 整合了原有散乱的Api,并且新增了许多强大的功能，所以推送服务对App的影响很重要。</p>
+<h2 id="1-准备篇"><a href="#1-准备篇" class="headerlink" title="1. 准备篇"></a>1. 准备篇</h2><h4 id="1-1-推送前准备"><a href="#1-1-推送前准备" class="headerlink" title="1.1 推送前准备"></a>1.1 推送前准备</h4><p>推送通知（Push Notification） 必须购买Apple 开发者账号，并使用特定的推送证书。</p>
+<ul>
+<li>使用免费的账号不能进行推送</li>
+<li>使用第三方推送服务（如友盟推送，极光推送等等），也必须购买开发者账号，因为所有的第三方都会将推送请求发送至APNs (Apple Push Notification service 苹果推送通知服务) ，所有推送均是由APNs 下发。</li>
+<li>注册及正确配置证书。参考链接<a href="http://dev.umeng.com/push/ios/license-configuration-guide">http://dev.umeng.com/push/ios/license-configuration-guide</a></li>
+</ul>
+<h2 id="2-原理篇"><a href="#2-原理篇" class="headerlink" title="2. 原理篇"></a>2. 原理篇</h2><h4 id="2-1-推送通知本身是iOS-系统的行为，所以在App没有运行（没有在前台也没有在后台）的时候；"><a href="#2-1-推送通知本身是iOS-系统的行为，所以在App没有运行（没有在前台也没有在后台）的时候；" class="headerlink" title="2.1 推送通知本身是iOS 系统的行为，所以在App没有运行（没有在前台也没有在后台）的时候；"></a>2.1 推送通知本身是iOS 系统的行为，所以在App没有运行（没有在前台也没有在后台）的时候；</h4><ul>
+<li>仍然能够推送及接收（通知中心通知，顶部横幅，刷新app右上角的小圆点即bage，即角标）等都会由系统来控制和展示。</li>
+<li>收到推送通知时，是无法在app的代码中获取到通知的内容的。因为沙盒机制，此时app的任何代码都不可能被执行。</li>
+</ul>
+<h4 id="2-2-手机向APNs-注册推送服务"><a href="#2-2-手机向APNs-注册推送服务" class="headerlink" title="2.2 手机向APNs 注册推送服务"></a>2.2 手机向APNs 注册推送服务</h4><ul>
+<li>在代码中注册推送服务：</li>
+</ul>
+<pre><code> #ifdef __IPHONE_8_0
+ if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+ UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge| UIUserNotificationTypeSound|UIUserNotificationTypeAlert categories:nil];
+ [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+ } else {
+     UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound;
+     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
+}
+ #else
+     UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound;
+ [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
+ #endif
+    &apos;&apos;&apos;
+</code></pre><ul>
+<li><p>在第一次触发这段代码的时候，会有一个系统弹窗，询问你是否允许该 App 要给你推送信息。当你选择允许时，系统会打包 App+手机唯一标识+证书 信息发送至 APNs 服务器注册推送服务，APNs 系统会对该手机安装的该 App 是否有推送权限进行验证，所以必须要加入了 Apple Deveice 的手机，使用对应 App 的推送证书才能够成功的注册。</p>
+</li>
+<li><p>如果注册成功，则可以在 AppDelegate.m 的如下方法中获取到 deviceToken，它是对 该手机+该App 组合的一个唯一标识，当使用远程推送时，只需将推送消息发给指定的 deviceToken 即可使推送信息传达给指定手机的指定 App 上。因此如果你使用第三方，就需要在这个方法里将 deviceToken 传给第三方。（在 iOS 9 为了更好的保护用户隐私，会出现多次重复删除/安装 App 导致 deviceToken 不断变化的情况。有时会出现一条推送手机会收到 2 次的问题，属于 iOS 9 系统问题）。 </p>
+<pre><code>-(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {  
+    [JPUSHService registerDeviceToken:deviceToken];//将 deviceToken 传给极光推送
+</code></pre><p>}</p>
+</li>
+<li><p>如果以上步骤均成功，此时你能够取到第三方提供的设备注册 id。能否取到该 id 值，可以作为判断设备是否能够成功推送的标准（见 Tip 6 – Registration ID）。因为当你取到该值时必然：</p>
+<p>  推送证书配置正确（你拥有了推送权限）。<br>  设备成功在 APNs 注册并返回了 deviceToken（APNs 能识别你的设备了）。<br>  返回 的 deviceToken 传给第三方，成功在第三方生成了唯一标识注册 id（第三方能将你的设备信息传给 APNs 了）.</p>
+</li>
+<li>综上所述，注册及接收推送通知必须使用真机，必须联网。</li>
+</ul>
+<h4 id="2-3-推送通知从-服务端-–-gt-App-代码-的过程"><a href="#2-3-推送通知从-服务端-–-gt-App-代码-的过程" class="headerlink" title="2.3 推送通知从 服务端 –&gt; App 代码 的过程"></a>2.3 推送通知从 服务端 –&gt; App 代码 的过程</h4><ul>
+<li>使用你们公司或第三方的服务端向 APNs 发送推送请求（请参考苹果 APNs 相关资料，或者第三方推送提供了更简单的 REST API）</li>
+<li>APNs 接收并验证推送请求</li>
+<li>APNs 找到设备下发推送。</li>
+<li>手机收到推送通知，系统根据 App 状态进行处理：<br>  此时分三种情况进行处理：<br><br>  <strong>前台收到</strong>： 系统会将通知内容传到 didReceiveRemoteNotification<br><br>  <strong>后台收到</strong>：如果开启了 Remote Notification ，系统将推送传到 didReceiveRemoteNotification:fetchCompletionHandler:，否则此时代码中收不到推送。展示横幅、通知中心、声音、角标。<br><br> <strong>退出收到</strong>：如果点击推送横幅/通知中心而启动 App，系统将通知传到 didFinishLaunchingWithOptions。<br> 展示横幅、通知中心、声音、角标。</li>
+</ul>
+<h2 id="3-推送通知内容篇"><a href="#3-推送通知内容篇" class="headerlink" title="3. 推送通知内容篇"></a>3. 推送通知内容篇</h2><h4 id="3-1-推送通知分为-本地-远程-2-种类型："><a href="#3-1-推送通知分为-本地-远程-2-种类型：" class="headerlink" title="3.1 推送通知分为 本地/远程 2 种类型："></a>3.1 推送通知分为 本地/远程 2 种类型：</h4><ul>
+<li>本地通知，可指定推送时间，在该时间准时弹出推送通知。</li>
+<li><p>远程推送通知，分为 普通推送/后台推送/静默推送 3 种类型。存在延迟问题（，APNs 的不稳定及高峰时段的巨量请求所致）。 </p>
+<p> ######普通推送</p>
+<ul>
+<li>就是我们在手机上平时见到的推送通知。</li>
+<li>包含声音、横幅、角标、自定义字段。<br> </li>
+<li><p>App<br><br>  处于前台，不会展示横幅，可通过 didReceiveRemoteNotification（iOS 7 before）didReceiveRemoteNotification:fetchCompletionHandler:（iOS 7 after）获取通知内容（前台展示横幅的方法看这里）。<br><br>   处于后台，会展示横幅，无法获取通知内容。<br><br>   处于退出，会展示横幅，无法获取通知内容。<br><br>   点击图标启动，无法获取通知内容。<br>   点击通知横幅启动，在 didFinishLaunchingWithOptions 获取通知内容。<br>通知内容类似如下： </p>
+<pre><code>{
+  &quot;_j_msgid&quot; = 200806057;  // 第三方附带的 id，用于统计点击
+  aps =     {
+    alert = &quot;显示内容&quot;;
+badge = 1;  // App 角标，可推送 n、+n、-n 来实现角标的固定、增加、减少
+    sound = default;  // 推送声音，默认系统三全音，如需使用自己的声音，需要将声音文件拖拽&amp;拷贝至 Xcode 工程目录任意位置，并在推送时指定其文件名
+  };
+  key1 = value1;  // 自定义字段，可设置多组，用于处理内部逻辑
+  key2 = value2;
+}
+</code></pre><p>######后台推送</p>
+<ul>
+<li>各种显示效果跟普通推送完全一样。<br></li>
+</ul>
+</li>
+<li>必须携带 “content-available” = 1;<br></li>
+<li>必须携带 alert、badge、sound 中 至少 1 个字段。<br></li>
+<li>仅 iOS 7 以后支持。<br></li>
+<li>必须在 Xcode 工程中 TARGETS – Capabilities – Background Modes – Remote notifications 开启该功能，具体可参照 iOS 7 Background Remote Notification。<br></li>
+<li>App：<br></li>
+</ul>
+<p>处于前台，可通过didReceiveRemoteNotification（iOS 7 before）didReceiveRemoteNotification:fetchCompletionHandler:（iOS 7 after） 获取通知内容。<br><br> 处于后台，可通过 didReceiveRemoteNotification:fetchCompletion Handler: 获取通知内容 // 获取情况中与普通推送的唯一不同点，此时 iOS 系统允许开发者在 App 处于后台的情况下，执行一些代码，大概提供几分钟的时间，可以用来偷偷的刷新 UI、切换页面、下载更新包等等操作。<br><br> 处于退出，无法获取通知内容。<br><br> 点击图标启动，无法获取通知内容。<br><br> 点击推送横幅启动，在 didFinishLaunchingWithOptions 获取通知内容。<br></p>
+</li>
+</ul>
+<p>通知内容类似如下： </p>
+<pre><code>    {
+      &quot;_j_msgid&quot; = 2090737306;
+      aps =     {
+alert = &quot;显示内容&quot;;
+badge = 1;
+&quot;content-available&quot; = 1;  // 必带字段
+sound = default;
+      };
+      key1 = value1;
+    }
+</code></pre><p>######静默推送</p>
+<ul>
+<li><p>nil</p>
+<ul>
+<li><p>没有任何展示效果。</p>
+<ul>
+<li>必须携带 “content-available” = 1;，因此静默必然是后台的。</li>
+<li>必须不携带 alert、badge、sound。</li>
+<li>可携带自定义字段。</li>
+<li><p>App ：<br><br>处于前台，可通过didReceiveRemoteNotification（iOS 7 before）didReceiveRemoteNotification:fetchCompletionHandler:（iOS 7 after） 获取通知内容。<br><br>处于后台，可通过 didReceiveRemoteNotification:fetchCompletion Handler: 获取通知内容 //获取情况中与普通推送的唯一不同点，此时 iOS 系统允许开发者在 App 处于后台的情况下，执行一些代码，大概提供几分钟的时间，可以用来偷偷的刷新 UI、切换页面、下载更新包等等操作。<br><br>处于退出，无法获取通知内容。<br><br>通知内容类似如下：</p>
+<pre><code>{
+&quot;_j_msgid&quot; = 3938587719;
+aps =     {
+alert = &quot;&quot;;
+&quot;content-available&quot; = 1;  // 必带字段
+        };
+key1 = value1;
+}
+</code></pre></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-推送目标篇"><a href="#4-推送目标篇" class="headerlink" title="4. 推送目标篇"></a>4. 推送目标篇</h2><p>别名、标签、Registration ID 均是第三方提供的用于更方便地指定推送目标的功能。</p>
+<h4 id="4-1-推送根据目标的不同可分为："><a href="#4-1-推送根据目标的不同可分为：" class="headerlink" title="4.1 推送根据目标的不同可分为："></a>4.1 推送根据目标的不同可分为：</h4><pre><code>广播
+    无差别发送给所有用户。
+别名 alias 推送
+    第三方提供的功能
+    一个手机的一款 App 只能设置一个 alias（可修改）。
+    建议对每一个用户都取不同的别名，以此来确定唯一的用户（也可多个用户取 1 个别名）。
+    推送时可指定多个 alias 来下发同一内容。
+    仅指定 alias 的用户能够收到推送。
+标签 tag 推送
+    第三方提供的功能。
+    可设置多个、可增加、清空。
+    用于指定多样的属性，如 『1000』+『daily』+『discount』 可用于表示月消费超过 1k、喜欢购买日用品、偏好折扣商品的用户。
+    如果要删除，需要在上次设置时，将设置的 tags 保存至 NSUserDefaults，本次剔除不需要的 tag 后，再重新设置。
+    推送时可指定多个 tag 来下发同一内容。
+    手机如果设置了推送指定的多个 tag 中任一个tag，都能够收到推送消息。如指定 『1000』+『globe』+『original』 （千元级消费者、全球购、原价），那么设置了 『100』+『globe』+『discount』（百元级消费者、全球购、折扣价）的用户可以收到该推送消息。
+Registration ID 推送
+    第三方提供的功能。
+    在 Tip 3 的第 3 步时将 deviceToken 提供给第三方之后，其服务器会自动生成的指向该手机的唯一 id。
+    可在推送时指定多个 id 来下发消息。
+    可用于对核心用户、旗舰用户的精准推送。
+</code></pre><h2 id="5-应用内消息篇"><a href="#5-应用内消息篇" class="headerlink" title="5. 应用内消息篇"></a>5. 应用内消息篇</h2><h4 id="5-1-应用内消息（以下简称消息-）和推送通知的区别，消息："><a href="#5-1-应用内消息（以下简称消息-）和推送通知的区别，消息：" class="headerlink" title="5.1 应用内消息（以下简称消息 ）和推送通知的区别，消息："></a>5.1 应用内消息（以下简称消息 ）和推送通知的区别，消息：</h4><pre><code>不需要 Apple 推送证书。
+由第三方的服务器下发，而不是 APNs。
+相比通知，更快速，几乎没有延迟，可用于 IM 消息的即时送达。
+能够长时间保留离线消息，可获取所有历史消息内容。
+通过长连接技术下发消息，因此：
+    手机必须启动并与第三方服务器建立连接。
+    如果手机启动立刻切至后台，很可能连接没有建立。
+    手机必须处于前台才能收到消息。
+    手机从后台切回前台，会自动重新建立连接，并收到离线消息。
+没有任何展示（横幅、通知中心、角标、声音），因此可以：
+    自定义字段实现 UI 效果。
+    完全在静默情况下处理 App 内部逻辑。
+    使用一些 App Store 审核不会通过的功能，在审核时关闭功能，上架后通过接收消息，开启相关功能。
+</code></pre><h2 id="6-组合篇"><a href="#6-组合篇" class="headerlink" title="6. 组合篇"></a>6. 组合篇</h2><h4 id="6-1-tags-的组合技巧"><a href="#6-1-tags-的组合技巧" class="headerlink" title="6.1 tags 的组合技巧"></a>6.1 tags 的组合技巧</h4><ul>
+<li>可以在服务端来统计分析用户行为，然后将指定的 tags 发送至手机，手机接收后再为用户打上对应的 tags。</li>
+</ul>
+<h4 id="6-2-通知-消息的组合技巧"><a href="#6-2-通知-消息的组合技巧" class="headerlink" title="6.2 通知+消息的组合技巧"></a>6.2 通知+消息的组合技巧</h4><ul>
+<li><p>首先看通知和消息的特性对比：</p>
+<p> 标题      | 通知           | 消息    |<br>——————–|——————|———————–|<br>送达时间 |可能存在几秒延迟  | 几乎无延迟  |<br>获取时机      |      处于前台或后台能获取内容  | 仅处于前台能获取内容  |<br>离线内容  | 保留『一段时间』，过期会抛弃，无法查询历史内容      | 始终保留，可查询全部历史内容       |<br>系统展示    | 会展示（静默推送或App处于前台不展示）  | 不展示  |</p>
+</li>
+<li><p>由于各自的特性都存在差异，因此二者结合使用是使得 App 推送性能最大化的必然选择：</p>
+<p>  情景一：<br>  QQ/微信 聊天。会同时下发一组通知+消息 ，如果用户没有启动 QQ，虽有延迟但必然能够先收到通知，在收到通知的提醒之后，用户打开 App，此时收到了离线消息，即时更新 UI，与好友即时地发送/接收消息。（在收到通知后，断网，然后启动 App，你会发现此时手机里并不会显示刚刚通知的内容，因为它是依靠拉取消息来刷新页面的，而不是不够稳定的通知）。</p>
+</li>
+</ul>
+<h2 id="7-第三方平台篇"><a href="#7-第三方平台篇" class="headerlink" title="7. 第三方平台篇"></a>7. 第三方平台篇</h2><p>目前可以集成推送通知的部分第三方平台：</p>
+<h4 id="7-1-极光推送"><a href="#7-1-极光推送" class="headerlink" title="7.1 极光推送"></a>7.1 极光推送</h4><p><a href="http://docs.jiguang.cn/jpush/server/push/rest_api_v3_report/">http://docs.jiguang.cn/jpush/server/push/rest_api_v3_report/</a></p>
+<h4 id="7-2-友盟推送"><a href="#7-2-友盟推送" class="headerlink" title="7.2 友盟推送"></a>7.2 友盟推送</h4><p><a href="http://mobile.umeng.com/push?spm=0.0.0.0.6AKSng">http://mobile.umeng.com/push?spm=0.0.0.0.6AKSng</a></p>
+<h4 id="7-2-个推"><a href="#7-2-个推" class="headerlink" title="7.2 个推"></a>7.2 个推</h4><p><a href="http://www.getui.com/">http://www.getui.com/</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/uploads/weixinpay.jpg" alt="victor WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/uploads/zhifubaopay.jpg" alt="victor Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/13/h2016091304/" rel="next" title="Android开源项目及库">
+                <i class="fa fa-chevron-left"></i> Android开源项目及库
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/14/h2016091401/" rel="prev" title="iOS 集成热修复 JSPatch">
+                iOS 集成热修复 JSPatch <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/14/h2016091305/"
+     data-title="iOS 推送全解析"
+     data-content=""
+     data-url="http://yoursite.com/2016/09/14/h2016091305/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/14/h2016091305/"
+           data-title="iOS 推送全解析" data-url="http://yoursite.com/2016/09/14/h2016091305/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.png"
+               alt="victor" />
+          <p class="site-author-name" itemprop="name">victor</p>
+          <p class="site-description motion-element" itemprop="description">逆风的方向更适合飞翔，我不怕万人阻挡，只怕自己投降！不管做什么事，我都时刻记住这句话，遇到任何困难，都坚持不放弃！</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/wsl-victor/" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/pearapp" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  微博
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/appandroid" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">victor</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">本站访客数<i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span>人次</span>
+  
+
+  
+    <span class="site-pv">本站总访问量<i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"wsl-victor"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("v4nftjucrmaXAwlIFJ85OWfq-gzGzoHsz", "Pn9K1mT5Q26u61iXfhmmsKT1#<app_key>");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
